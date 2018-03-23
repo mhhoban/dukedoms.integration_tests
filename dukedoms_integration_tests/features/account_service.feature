@@ -1,13 +1,57 @@
 Feature: Account Service
 
+  Background: Test DB with only one account
+    Given an empty account database
+    When account service receives request for new account with details:
+      | email          |
+      | test@test.test |
+
   Scenario: Create Account
-  Given an empty account database
-  When account service receives request for new account with details:
-  | email          |
-  | test@test.test |
-  Then the request is successful
-  When account service receives request for account id for email address:
-  | email          |
-  | test@test.test |
-  Then we receive an account id
-  
+    When account service receives request for account id for email address:
+      | email          |
+      | test@test.test |
+    Then the account service returns an id
+    When account services receives another request for account id for email address:
+      | email         |
+      | test@test.test|
+    Then the account service returns the same id
+
+  Scenario: Verify Account Exists
+    When account service receives request for account validation for:
+      | email          |
+      | test@test.test |
+    Then account service returns True
+
+  Scenario: Verify Account Does Not Exist
+    When account service receives request for account validation for:
+      | email               |
+      | test_fail@test.test |
+
+  Scenario: Verify Accounts Exist
+    When account service receives request for new account with details:
+      | email           |
+      | test2@test.test |
+    And account service receives request for account validation for:
+      | email           |
+      | test@test.test  |
+      | test2@test.test |
+    Then account service returns validation success object
+
+  Scenario: Verify Accounts Do Not Exist
+    When account service receives request for account validation for:
+      | email                   |
+      | test_fail_one@test.test |
+      | test_fail_two@test.test |
+    Then account service returns validation failure object with
+      | email                   |
+      | test_fail_one@test.test |
+      | test_fail_two@test.test |
+
+  Scenario: Add Game Invite Notification
+    When account service receives request to invite player to game id:
+      | player email   | game id |
+      | test@test.test | 13      |
+    Then account services shows game id when queried for player invites:
+      | player email   | game id |
+      | test@test.test | 13      |
+      
