@@ -1,3 +1,4 @@
+@account_service
 Feature: Account Service
 
   Background: Test DB with only one account
@@ -6,7 +7,17 @@ Feature: Account Service
       | email          |
       | test@test.test |
 
-  Scenario: Create Account
+  Scenario: Test Account Creation
+    When account service receives request for new account with details:
+      | email              |
+      | test_one@test.test |
+    Then account service returns an account Id with the success
+    When acount service is queried with that account Id
+    Then it returns account with info
+      | email              |
+      | test_one@test.test |
+
+  Scenario: Verify Id
     When account service receives request for account id for email address:
       | email          |
       | test@test.test |
@@ -54,4 +65,3 @@ Feature: Account Service
     Then account services shows game id when queried for player invites:
       | player email   | game id |
       | test@test.test | 13      |
-      
