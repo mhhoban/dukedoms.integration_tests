@@ -51,3 +51,40 @@ def assert_account_info_correct(context):
     """
     for row in context.table:
         assert_that(context.account_email, equal_to(row['email']))
+
+@when('account service receives request for account id for email address')
+def step_get_id_for_email(context):
+    """
+    query account service for the ids corresponding to given emails
+    """
+    account_emails = [email for row['email'] in context.table]
+
+    result, status = context.clients.account_service.accountInfo.get_account_ids(
+        requestAccountIds=account_emails
+    )
+    assert_that(status.status_code, equal_to(200))
+    context.account_ids = result
+
+@then('the account service returns an id')
+def assert_account_id(context):
+    """
+    Gherkin placeholder for a step in the story
+    """
+    assert_that(context.get_account_ids, is_not(None))
+
+@when('account services receives another request for account id for email address')
+def step_get_account_id_again(context):
+    account_emails = [email for row['email'] in context.table]
+
+    result, status = context.clients.account_service.accountInfo.get_account_ids(
+        requestAccountIds=account_emails
+    )
+    assert_that(status.status_code, equal_to(200))
+    context.second_account_ids = result
+
+@then('the account service returns the same id')
+def assert_account_ids_identical(context):
+    assert_that(
+        context.second_account_ids[0].playerId,
+        equal_to(context.account_ids[0].playerId)
+    )
