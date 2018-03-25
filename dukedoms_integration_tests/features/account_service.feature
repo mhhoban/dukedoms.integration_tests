@@ -36,7 +36,9 @@ Feature: Account Service
     When account service receives request for account validation for:
       | email               |
       | test_fail@test.test |
+    Then account service returns False
 
+  @wip
   Scenario: Verify Accounts Exist
     When account service receives request for new account with details:
       | email           |
@@ -47,6 +49,7 @@ Feature: Account Service
       | test2@test.test |
     Then account service returns validation success object
 
+  @wip
   Scenario: Verify Accounts Do Not Exist
     When account service receives request for account validation for:
       | email                   |

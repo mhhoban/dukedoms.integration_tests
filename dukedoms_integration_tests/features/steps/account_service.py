@@ -74,7 +74,7 @@ def assert_account_id(context):
 
 @when('account services receives another request for account id for email address')
 def step_get_account_id_again(context):
-    account_emails = [email for row['email'] in context.table]
+    account_emails = [row['email'] for row in context.table]
 
     result, status = context.clients.account_service.accountInfo.get_account_ids(
         requestAccountIds=account_emails
@@ -88,3 +88,57 @@ def assert_account_ids_identical(context):
         context.second_account_ids[0].playerId,
         equal_to(context.account_ids[0].playerId)
     )
+
+@when('account service receives request for account validation for')
+def step_request_account_validation(context):
+    """
+    send account service request to validate given email is signed up
+    """
+    player_list = [row['email'] for row in context.table]
+    result, status = context.clients.account_service.accountInfo.verify_accounts(
+        playerList=player_list
+    )
+
+    context.request_status_code = status.status_code
+
+@then('account service returns True')
+def assert_accounts_valid(context):
+    assert_that(context.request_status_code, equal_to(200))
+
+
+@then('account service returns False')
+def assert_accounts_valid(context):
+    assert_that(context.request_status_code, equal_to(404))
+
+@when('account service receives request to invite player to game id:')
+def step_invite_players(context):
+    """
+    send the invitation for a set of players to be invited to a game to
+    account service
+    """
+    invitation_batch = context.clients.account_service.get_model('InvitationBatch')(
+        gameId=context.table.rows[0]['game id']
+        playerList=[row['player'] for row in context.table]
+    )
+    result, status = context.clients.account_service.gameOperations.invite_accounts(
+        invitationBatch=invitation_batch
+    )
+    assert_that(status.status_code, equal_to(202))
+
+@when('account services shows game id when queried for player invites')
+def assert_player_invite_successful(context):
+    account_emails = [email for row['player email'] in context.table]
+
+    result, status = context.clients.account_service.accountInfo.get_account_ids(
+        requestAccountIds=account_emails
+    )
+    assert_that(status.status_code, equal_to(200))
+    account_id = result[0]
+
+    result, status = context.clients.account_service.accountInfo.get_player_info(
+        accountId=account_id
+    )
+    assert_that(status.status_code, equal_to(200))
+
+    expected_game_id = context.table.rows[0]['game id']
+    assert_that(result.gameInvitations[0], equal_to(expected_game_id))
