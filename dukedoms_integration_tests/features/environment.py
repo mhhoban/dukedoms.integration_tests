@@ -9,9 +9,13 @@ def get_environment_variables(env):
     URLS = Dict()
     URLS.local.game_service = 'http://localhost:5000'
     URLS.local.dukedoms_rdbs = 'http://localhost:5001'
+    URLS.local.account_service_db = 'postgresql+psycopg2://dukedoms:daleria@localhost:5001/account_service'
+    URLS.local.account_service = 'http://localhost:5002'
 
     URLS.container.game_service = 'game-service:5000'
+    URLS.container.account_service = 'account-service:5000'
     URLS.container.dukedoms_rdbs = 'dukedoms-rdbs:5432'
+    URLS.container.account_service_db = 'postgresql+psycopg2://dukedoms:daleria@dukedoms-rdbs:5432/account_service'
 
     if env == 'local':
         return URLS.local
@@ -37,5 +41,13 @@ def before_step(context, step):
             'specs/game_service_spec.yaml',
         ),
         origin_url=context.env_urls.game_service,
+        config=config
+    )
+
+    context.clients.account_service = SwaggerClient.from_spec(
+        load_file(
+            'specs/sccount_service_spec.yaml',
+        ),
+        origin_url=context.env_urls.account_service,
         config=config
     )

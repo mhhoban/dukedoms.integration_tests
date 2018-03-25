@@ -11,8 +11,7 @@ Feature: Account Service
     When account service receives request for new account with details:
       | email              |
       | test_one@test.test |
-    Then account service returns an account Id with the success
-    When acount service is queried with that account Id
+    And acount service is queried with the new account id
     Then it returns account with info
       | email              |
       | test_one@test.test |
