@@ -1,15 +1,18 @@
+
 from behave import given, then, when
 from hamcrest import assert_that, equal_to, is_not
+from sqlalchemy import create_engine
+from sqlalchemy.orm import scoped_session, sessionmaker
 
 @given('an empty account database')
-def clear_account_service_db:
+def clear_account_service_db(context):
     """
     drop any existing information from tables for a clean test run.
     """
     engine = create_engine(context.env_urls.account_service_db)
     Session = scoped_session(sessionmaker(bind=engine))
     session = Session()
-    session.execute('DROP * from account')
+    session.execute('TRUNCATE table accounts')
     session.close()
 
 @when('account service receives request for new account with details')
@@ -27,7 +30,7 @@ def step_new_account(context):
         ).result()
 
         assert_that(status.status_code, equal_to(200))
-        assert_that(result.account_id is_not(None))
+        assert_that(result.account_id, is_not(None))
 
         context.account_id = result.account_id
 
@@ -117,7 +120,7 @@ def step_invite_players(context):
     account service
     """
     invitation_batch = context.clients.account_service.get_model('InvitationBatch')(
-        gameId=context.table.rows[0]['game id']
+        gameId=context.table.rows[0]['game id'],
         playerList=[row['player'] for row in context.table]
     )
     result, status = context.clients.account_service.gameOperations.invite_accounts(

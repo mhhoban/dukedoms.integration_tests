@@ -7,6 +7,7 @@ Feature: Account Service
       | email          |
       | test@test.test |
 
+  @foo
   Scenario: Test Account Creation
     When account service receives request for new account with details:
       | email              |
