@@ -12,7 +12,7 @@ Feature: Account Service
     When account service receives request for new account with details:
       | email              |
       | test_one@test.test |
-    And acount service is queried with the new account id
+    And account service is queried with the new account id
     Then it returns account with info
       | email              |
       | test_one@test.test |

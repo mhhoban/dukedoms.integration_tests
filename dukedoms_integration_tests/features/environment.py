@@ -6,6 +6,8 @@ from bravado.swagger_model import load_file
 
 def get_environment_variables(env):
 
+
+
     URLS = Dict()
     URLS.local.game_service = 'http://localhost:5000'
     URLS.local.dukedoms_rdbs = 'http://localhost:5001'
@@ -34,7 +36,7 @@ def before_step(context, step):
         'formats': []
     }
 
-    env = os.environ.get('TEST_ENV')
+    env = context.config.userdata.get('env')
     context.env_urls = get_environment_variables(env)
     context.clients = Dict()
     context.clients.game_service = SwaggerClient.from_spec(

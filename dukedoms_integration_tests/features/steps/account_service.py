@@ -34,7 +34,7 @@ def step_new_account(context):
 
         context.account_id = result.account_id
 
-@when('acount service is queried with the new account id')
+@when('account service is queried with the new account id')
 def step_query_service_with_id(context):
     """
     get account info from account id
