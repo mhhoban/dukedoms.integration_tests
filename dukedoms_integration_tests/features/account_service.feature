@@ -7,7 +7,6 @@ Feature: Account Service
       | email          |
       | test@test.test |
 
-  @foo
   Scenario: Test Account Creation
     When account service receives request for new account with details:
       | email              |
@@ -17,7 +16,8 @@ Feature: Account Service
       | email              |
       | test_one@test.test |
 
-  Scenario: Verify Id
+  @foo
+  Scenario: Get Account Id By Email Address
     When account service receives request for account id for email address:
       | email          |
       | test@test.test |
