@@ -15,6 +15,7 @@ def clear_account_service_db(context):
     session = Session()
 
     session.execute('TRUNCATE TABLE accounts')
+    session.commit()
     session.close()
 
 @when('account service receives request for new account with details')
@@ -117,35 +118,32 @@ def assert_accounts_valid(context):
 def assert_accounts_valid(context):
     assert_that(len(context.verification_request_response.unverified_players), greater_than(0))
 
-@when('account service receives request to invite player to game id:')
+@when('account service receives request to invite player to game')
 def step_invite_players(context):
     """
     send the invitation for a set of players to be invited to a game to
     account service
     """
     invitation_batch = context.clients.account_service.get_model('InvitationBatch')(
-        gameId=context.table.rows[0]['game id'],
-        playerList=[row['player'] for row in context.table]
+        gameId=int(context.table.rows[0]['game id']),
+        playerList=[row['player email'] for row in context.table]
     )
     result, status = context.clients.account_service.gameOperations.invite_accounts(
         invitationBatch=invitation_batch
-    )
+    ).result()
     assert_that(status.status_code, equal_to(202))
 
-@when('account services shows game id when queried for player invites')
+@then('account services shows game id when queried for player invites')
 def assert_player_invite_successful(context):
-    account_emails = [email for row['player email'] in context.table]
-
-    result, status = context.clients.account_service.accountInfo.get_account_ids(
-        requestAccountIds=account_emails
-    )
-    assert_that(status.status_code, equal_to(200))
-    account_id = result[0]
+    account_emails = [row['player email'] for row in context.table]
 
     result, status = context.clients.account_service.accountInfo.get_player_info(
-        accountId=account_id
-    )
+        accountId=context.account_ids[0][account_emails[0]]
+    ).result()
     assert_that(status.status_code, equal_to(200))
 
+    import pdb
+    pdb.set_trace()
+
     expected_game_id = context.table.rows[0]['game id']
-    assert_that(result.gameInvitations[0], equal_to(expected_game_id))
+    assert_that(result.game_invitations['game_invitation_ids'][0], equal_to(int(expected_game_id)))

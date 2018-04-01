@@ -26,14 +26,12 @@ Feature: Account Service
       | test@test.test|
     Then the account service returns the same id
 
-  @foo
   Scenario: Verify Account Exists
     When account service receives request for account validation for:
       | email          |
       | test@test.test |
     Then account service returns True
 
-  @foo
   Scenario: Verify Account Does Not Exist
     When account service receives request for account validation for:
       | email               |
@@ -62,10 +60,14 @@ Feature: Account Service
       | test_fail_one@test.test |
       | test_fail_two@test.test |
 
+  @foo
   Scenario: Add Game Invite Notification
-    When account service receives request to invite player to game id:
+    When account service receives request to invite player to game:
       | player email   | game id |
       | test@test.test | 13      |
+    And account service receives request for account id for email address:
+      | email          |
+      | test@test.test |
     Then account services shows game id when queried for player invites:
       | player email   | game id |
       | test@test.test | 13      |
