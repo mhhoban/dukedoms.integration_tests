@@ -69,7 +69,8 @@ def step_get_id_for_email(context):
         requestedAccounts=account_emails
     ).result()
     assert_that(status.status_code, equal_to(200))
-    context.account_ids = result
+
+    context.account_ids = result.accountIdMappings
 
 @then('the account service returns an id')
 def assert_account_id(context):
@@ -87,7 +88,7 @@ def step_get_account_id_again(context):
     ).result()
 
     assert_that(status.status_code, equal_to(200))
-    context.second_account_ids = result
+    context.second_account_ids = result.accountIdMappings
 
 @then('the account service returns the same id')
 def assert_account_ids_identical(context):

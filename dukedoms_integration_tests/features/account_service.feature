@@ -16,6 +16,7 @@ Feature: Account Service
       | email              |
       | test_one@test.test |
 
+  @foo
   Scenario: Get Account Id By Email Address
     When account service receives request for account id for email address:
       | email          |
@@ -60,7 +61,6 @@ Feature: Account Service
       | test_fail_one@test.test |
       | test_fail_two@test.test |
 
-  @foo
   Scenario: Add Game Invite Notification
     When account service receives request to invite player to game:
       | player email   | game id |
