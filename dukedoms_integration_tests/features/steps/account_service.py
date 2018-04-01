@@ -1,6 +1,7 @@
 
 from behave import given, then, when
-from hamcrest import assert_that, equal_to, is_not
+from bravado.exception import HTTPNotFound
+from hamcrest import assert_that, equal_to, is_not, greater_than
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 
@@ -12,7 +13,8 @@ def clear_account_service_db(context):
     engine = create_engine(context.env_urls.account_service_db)
     Session = scoped_session(sessionmaker(bind=engine))
     session = Session()
-    session.execute('TRUNCATE table accounts')
+
+    session.execute('TRUNCATE TABLE accounts')
     session.close()
 
 @when('account service receives request for new account with details')
@@ -82,6 +84,7 @@ def step_get_account_id_again(context):
     result, status = context.clients.account_service.accountInfo.get_account_ids(
         requestedAccounts=account_emails
     ).result()
+
     assert_that(status.status_code, equal_to(200))
     context.second_account_ids = result
 
@@ -98,20 +101,21 @@ def step_request_account_validation(context):
     send account service request to validate given email is signed up
     """
     player_list = [row['email'] for row in context.table]
+
     result, status = context.clients.account_service.accountInfo.verify_accounts(
         playerList=player_list
-    )
+    ).result()
 
-    context.request_status_code = status.status_code
+    context.verification_request_response = result
 
 @then('account service returns True')
 def assert_accounts_valid(context):
-    assert_that(context.request_status_code, equal_to(200))
+    assert_that(len(context.verification_request_response.unverified_players), equal_to(0))
 
 
 @then('account service returns False')
 def assert_accounts_valid(context):
-    assert_that(context.request_status_code, equal_to(404))
+    assert_that(len(context.verification_request_response.unverified_players), greater_than(0))
 
 @when('account service receives request to invite player to game id:')
 def step_invite_players(context):

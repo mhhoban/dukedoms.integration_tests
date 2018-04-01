@@ -16,7 +16,6 @@ Feature: Account Service
       | email              |
       | test_one@test.test |
 
-  @foo
   Scenario: Get Account Id By Email Address
     When account service receives request for account id for email address:
       | email          |
@@ -27,12 +26,14 @@ Feature: Account Service
       | test@test.test|
     Then the account service returns the same id
 
+  @foo
   Scenario: Verify Account Exists
     When account service receives request for account validation for:
       | email          |
       | test@test.test |
     Then account service returns True
 
+  @foo
   Scenario: Verify Account Does Not Exist
     When account service receives request for account validation for:
       | email               |
