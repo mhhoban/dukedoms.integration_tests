@@ -16,7 +16,6 @@ Feature: Account Service
       | email              |
       | test_one@test.test |
 
-  @foo
   Scenario: Get Account Id By Email Address
     When account service receives request for account id for email address:
       | email          |
@@ -39,7 +38,6 @@ Feature: Account Service
       | test_fail@test.test |
     Then account service returns False
 
-  @wip
   Scenario: Verify Accounts Exist
     When account service receives request for new account with details:
       | email           |
@@ -48,15 +46,15 @@ Feature: Account Service
       | email           |
       | test@test.test  |
       | test2@test.test |
-    Then account service returns validation success object
+    Then account service returns True
 
-  @wip
+  @foo
   Scenario: Verify Accounts Do Not Exist
     When account service receives request for account validation for:
       | email                   |
       | test_fail_one@test.test |
       | test_fail_two@test.test |
-    Then account service returns validation failure object with
+    Then account service returns validation failure object with:
       | email                   |
       | test_fail_one@test.test |
       | test_fail_two@test.test |

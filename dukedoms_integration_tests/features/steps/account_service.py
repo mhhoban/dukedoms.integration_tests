@@ -1,7 +1,7 @@
 
 from behave import given, then, when
 from bravado.exception import HTTPNotFound
-from hamcrest import assert_that, equal_to, is_not, greater_than
+from hamcrest import assert_that, equal_to, is_not, greater_than, has_item
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 
@@ -143,8 +143,10 @@ def assert_player_invite_successful(context):
     ).result()
     assert_that(status.status_code, equal_to(200))
 
-    import pdb
-    pdb.set_trace()
-
     expected_game_id = context.table.rows[0]['game id']
     assert_that(result.game_invitations['game_invitation_ids'][0], equal_to(int(expected_game_id)))
+
+@then('account service returns validation failure object with')
+def assert_player_validation_failures(context):
+    for player in [row['email'] for row in context.table]:
+        assert_that(context.verification_request_response.unverified_players, has_item(player))
