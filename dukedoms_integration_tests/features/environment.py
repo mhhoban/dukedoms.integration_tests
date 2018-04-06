@@ -41,7 +41,7 @@ def before_step(context, step):
     context.clients = Dict()
     context.clients.game_service = SwaggerClient.from_spec(
         load_file(
-            'specs/game_service_spec.yaml',
+            'specs/dukedoms_game_service_api.yaml',
         ),
         origin_url=context.env_urls.game_service,
         config=config
@@ -49,7 +49,7 @@ def before_step(context, step):
 
     context.clients.account_service = SwaggerClient.from_spec(
         load_file(
-            'specs/account_service_spec.yaml',
+            'specs/dukedoms_account_service_api.yaml',
         ),
         origin_url=context.env_urls.account_service,
         config=config
