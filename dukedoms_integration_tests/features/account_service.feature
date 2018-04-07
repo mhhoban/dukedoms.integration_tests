@@ -12,16 +12,28 @@ Feature: Account Service
       | email              |
       | test_one@test.test |
     And account service is queried with the new account id
-    Then it returns account with info
+    Then account service returns accounts with info
       | email              |
       | test_one@test.test |
+
+  Scenario: Test retrieve multiple account info
+    When account service receives request for new account with details:
+      | email              |
+      | test_one@test.test |
+    And account service is queried for the account ids for email addresses:
+      | email              |
+      | test_one@test.test |
+      | test@test.test     |
+    Then account service returns the account ids for those email addresses
+    When
+
 
   Scenario: Get Account Id By Email Address
     When account service receives request for account id for email address:
       | email          |
       | test@test.test |
     Then the account service returns an id
-    When account services receives another request for account id for email address:
+    When account service receives another request for account id for email address:
       | email         |
       | test@test.test|
     Then the account service returns the same id
@@ -48,7 +60,6 @@ Feature: Account Service
       | test2@test.test |
     Then account service returns True
 
-  @foo
   Scenario: Verify Accounts Do Not Exist
     When account service receives request for account validation for:
       | email                   |
@@ -66,6 +77,6 @@ Feature: Account Service
     And account service receives request for account id for email address:
       | email          |
       | test@test.test |
-    Then account services shows game id when queried for player invites:
+    Then account service shows game id when queried for player invites:
       | player email   | game id |
       | test@test.test | 13      |

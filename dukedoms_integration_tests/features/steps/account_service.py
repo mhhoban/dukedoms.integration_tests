@@ -1,4 +1,3 @@
-
 from behave import given, then, when
 from bravado.exception import HTTPNotFound
 from hamcrest import assert_that, equal_to, is_not, greater_than, has_item
@@ -50,7 +49,7 @@ def step_query_service_with_id(context):
 
     context.account_email = result.email
 
-@then('it returns account with info')
+@then('account service returns accounts with info')
 def assert_account_info_correct(context):
     """
     verify expected account info returned
@@ -79,7 +78,7 @@ def assert_account_id(context):
     """
     assert_that(context.account_ids, is_not(None))
 
-@when('account services receives another request for account id for email address')
+@when('account service receives another request for account id for email address')
 def step_get_account_id_again(context):
     account_emails = [row['email'] for row in context.table]
 
@@ -134,7 +133,7 @@ def step_invite_players(context):
     ).result()
     assert_that(status.status_code, equal_to(202))
 
-@then('account services shows game id when queried for player invites')
+@then('account service shows game id when queried for player invites')
 def assert_player_invite_successful(context):
     account_emails = [row['player email'] for row in context.table]
 
