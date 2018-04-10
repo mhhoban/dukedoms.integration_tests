@@ -16,7 +16,6 @@ Feature: Account Service
       | email              |
       | test_one@test.test |
 
-  @wip @foo
   Scenario: Test retrieve multiple account ids
     When account service receives request for new account with details:
       | email              |

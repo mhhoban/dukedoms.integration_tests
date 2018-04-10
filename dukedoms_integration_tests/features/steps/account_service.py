@@ -152,12 +152,13 @@ def assert_player_invite_successful(context):
     account_emails = [row['player email'] for row in context.table]
 
     result, status = context.clients.account_service.accountInfo.get_player_info(
-        accountId=context.account_ids[0][account_emails[0]]
+        accountIds=list(context.account_id_mappings[0].values())
     ).result()
     assert_that(status.status_code, equal_to(200))
 
     expected_game_id = context.table.rows[0]['game id']
-    assert_that(result.game_invitations['game_invitation_ids'][0], equal_to(int(expected_game_id)))
+
+    assert_that(result.player_accounts[0]['game_invitations']['game_invitation_ids'][0], equal_to(int(expected_game_id)))
 
 @then('account service returns validation failure object with')
 def assert_player_validation_failures(context):
