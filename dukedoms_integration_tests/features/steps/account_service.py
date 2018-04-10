@@ -34,30 +34,45 @@ def step_new_account(context):
         assert_that(status.status_code, equal_to(200))
         assert_that(result.account_id, is_not(None))
 
-        context.account_id = result.account_id
+        context.new_account_id = [result.account_id]
 
 @when('account service is queried with the new account id')
-def step_query_service_with_id(context):
+def step_query_new_account_id(context):
     """
-    get account info from account id
+    get account info for new account id
     """
+
     result, status = context.clients.account_service.accountInfo.get_player_info(
-        accountId=context.account_id
+        accountIds=context.new_account_id
     ).result()
 
     assert_that(status.status_code, equal_to(200))
+    context.returned_accounts = result.player_accounts
 
-    context.account_email = result.email
+@when('account service is queried with the account ids it returned')
+def step_query_service_with_ids(context):
+    """
+    get account info from account id
+    """
+
+    account_ids = [list(dict.values())[0] for dict in context.account_id_mappings]
+
+    result, status = context.clients.account_service.accountInfo.get_player_info(
+        accountIds=account_ids
+    ).result()
+
+    assert_that(status.status_code, equal_to(200))
+    context.returned_accounts = result.player_accounts
 
 @then('account service returns accounts with info')
 def assert_account_info_correct(context):
     """
     verify expected account info returned
     """
-    for row in context.table:
-        assert_that(context.account_email, equal_to(row['email']))
+    verify_player_info(context.table.rows, context.returned_accounts)
 
 @when('account service receives request for account id for email address')
+@when('account service is queried for account ids for email addresses')
 def step_get_id_for_email(context):
     """
     query account service for the ids corresponding to given emails
@@ -69,14 +84,15 @@ def step_get_id_for_email(context):
     ).result()
     assert_that(status.status_code, equal_to(200))
 
-    context.account_ids = result.accountIdMappings
+    context.account_id_mappings = result.accountIdMappings
 
+@then('account service returns the account ids for those email addresses')
 @then('the account service returns an id')
 def assert_account_id(context):
     """
     Gherkin placeholder for a step in the story
     """
-    assert_that(context.account_ids, is_not(None))
+    assert_that(context.account_id_mappings, is_not(None))
 
 @when('account service receives another request for account id for email address')
 def step_get_account_id_again(context):
@@ -87,14 +103,12 @@ def step_get_account_id_again(context):
     ).result()
 
     assert_that(status.status_code, equal_to(200))
-    context.second_account_ids = result.accountIdMappings
+    context.second_account_id = result.accountIdMappings
 
 @then('the account service returns the same id')
 def assert_account_ids_identical(context):
-    assert_that(
-        context.second_account_ids[0],
-        equal_to(context.account_ids[0])
-    )
+
+    assert_that(context.account_id_mappings, equal_to(context.second_account_id))
 
 @when('account service receives request for account validation for')
 def step_request_account_validation(context):
@@ -149,3 +163,16 @@ def assert_player_invite_successful(context):
 def assert_player_validation_failures(context):
     for player in [row['email'] for row in context.table]:
         assert_that(context.verification_request_response.unverified_players, has_item(player))
+
+def verify_player_info(table, accounts):
+    """
+    verify that specified info is accounted for in returned account data
+    """
+
+    specified_emails = [row['email'] for row in table]
+    returned_emails = [account['email'] for account in accounts]
+
+    for email in specified_emails:
+        assert_that(returned_emails, has_item(email))
+
+    return True

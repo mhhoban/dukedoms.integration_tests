@@ -16,17 +16,21 @@ Feature: Account Service
       | email              |
       | test_one@test.test |
 
-  Scenario: Test retrieve multiple account info
+  @wip @foo
+  Scenario: Test retrieve multiple account ids
     When account service receives request for new account with details:
       | email              |
       | test_one@test.test |
-    And account service is queried for the account ids for email addresses:
+    And account service is queried for account ids for email addresses:
       | email              |
       | test_one@test.test |
       | test@test.test     |
     Then account service returns the account ids for those email addresses
-    When
-
+    When account service is queried with the account ids it returned
+    Then account service returns accounts with info
+      | email              |
+      | test_one@test.test |
+      | test@test.test     |
 
   Scenario: Get Account Id By Email Address
     When account service receives request for account id for email address:
@@ -70,6 +74,7 @@ Feature: Account Service
       | test_fail_one@test.test |
       | test_fail_two@test.test |
 
+  @foo
   Scenario: Add Game Invite Notification
     When account service receives request to invite player to game:
       | player email   | game id |
