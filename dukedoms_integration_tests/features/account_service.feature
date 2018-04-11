@@ -73,7 +73,6 @@ Feature: Account Service
       | test_fail_one@test.test |
       | test_fail_two@test.test |
 
-  @foo
   Scenario: Add Game Invite Notification
     When account service receives request to invite player to game:
       | player email   | game id |
@@ -84,3 +83,18 @@ Feature: Account Service
     Then account service shows game ids when account "test@test.test" is queried for game invites:
       | game id |
       | 13      |
+
+  Scenario: Add Multiple Game Invite Notification
+    When account service receives request to invite player to game:
+      | player email   | game id |
+      | test@test.test | 13      |
+    And account service receives request to invite player to game:
+      | player email   | game id |
+      | test@test.test | 11      |
+    And account service receives request for account id for email address:
+      | email          |
+      | test@test.test |
+    Then account service shows game ids when account "test@test.test" is queried for game invites:
+      | game id |
+      | 13      |
+      | 11      |
