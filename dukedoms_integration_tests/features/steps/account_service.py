@@ -147,14 +147,22 @@ def step_invite_players(context):
     ).result()
     assert_that(status.status_code, equal_to(202))
 
-@then('account service shows game id when queried for player invites')
-def assert_player_invite_successful(context):
-    account_emails = [row['player email'] for row in context.table]
+@then('account service shows game ids when account "{acct_email}" is queried for game invites')
+def assert_player_invite_successful(context, acct_email):
+    account_emails = list(acct_email)
 
     result, status = context.clients.account_service.accountInfo.get_player_info(
         accountIds=list(context.account_id_mappings[0].values())
     ).result()
     assert_that(status.status_code, equal_to(200))
+
+    #helper function to compare expected vs received game gameInvitations
+    expected_games = [int(row['game id']) for row in context.table]
+    received_games = result.player_accounts[0]['game_invitations']['game_invitation_ids']
+    compare_game_invitations(
+        expected_games=expected_games,
+        received_games=received_games
+    )
 
     expected_game_id = context.table.rows[0]['game id']
 
@@ -169,11 +177,18 @@ def verify_player_info(table, accounts):
     """
     verify that specified info is accounted for in returned account data
     """
-
     specified_emails = [row['email'] for row in table]
     returned_emails = [account['email'] for account in accounts]
 
     for email in specified_emails:
         assert_that(returned_emails, has_item(email))
 
+    return True
+
+def compare_game_invitations(expected_games=None, received_games=None):
+    """
+    compare expected to received_games
+    """
+    for game in expected_games:
+        assert_that(received_games, has_item(game))
     return True

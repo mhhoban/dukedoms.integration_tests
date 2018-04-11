@@ -81,6 +81,6 @@ Feature: Account Service
     And account service receives request for account id for email address:
       | email          |
       | test@test.test |
-    Then account service shows game id when queried for player invites:
-      | player email   | game id |
-      | test@test.test | 13      |
+    Then account service shows game ids when account "test@test.test" is queried for game invites:
+      | game id |
+      | 13      |
