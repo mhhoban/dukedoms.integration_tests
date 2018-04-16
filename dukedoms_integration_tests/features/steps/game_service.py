@@ -1,7 +1,21 @@
 from behave import given, then, when
 from hamcrest import assert_that, equal_to, contains_inanyorder, is_in
+from sqlalchemy import create_engine
+from sqlalchemy.orm import scoped_session, sessionmaker
 
-#def create_new_game_request(client, host_player, invited_players):
+@given('an empty game service database')
+def clear_account_service_db(context):
+    """
+    drop any existing information from tables for a clean test run.
+    """
+    engine = create_engine(context.env_urls.game_service_db)
+    Session = scoped_session(sessionmaker(bind=engine))
+    session = Session()
+
+    session.execute('TRUNCATE TABLE games')
+    session.commit()
+    session.close()
+
 def create_new_game_request(client=None, invited_players=None, host_player=None):
     """
     Creates and returns new_game_request object
@@ -15,7 +29,7 @@ def create_new_game_request(client=None, invited_players=None, host_player=None)
 
     return new_game_object
 
-@when('service receives request to create new game with properties')
+@when('game service receives request to create new game with properties')
 def step_create_game(context):
     """
     Create a new game with game service
@@ -38,7 +52,7 @@ def step_create_game(context):
 def assert_game_created(context):
     assert_that(context.status_code, equal_to(200))
 
-@when('service receives request for that game info')
+@when('game service receives request for that game info')
 def step_request_game_info(context):
     pass
 

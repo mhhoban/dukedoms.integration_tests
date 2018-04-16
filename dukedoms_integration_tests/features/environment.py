@@ -9,11 +9,11 @@ def get_environment_variables(env):
 
 
     URLS = Dict()
-    URLS.local.game_service = 'http://localhost:5000'
+    URLS.local.game_service = 'http://localhost:5003'
     URLS.local.dukedoms_rdbs = 'http://localhost:5001'
-    #URLS.local.account_service_db = 'postgresql+psycopg2://dukedoms:daleria@127.0.0.1:5001/account_service'
-    URLS.local.account_service_db = 'postgresql+psycopg2://dukedoms:daleria@127.0.0.1:5432/account_service'
-    URLS.local.account_service = 'http://localhost:5000'
+    URLS.local.account_service = 'http://localhost:5002'
+    URLS.local.account_service_db = 'postgresql+psycopg2://dukedoms:daleria@127.0.0.1:5001/account_service'
+    URLS.local.game_service_db = 'postgresql+psycopg2://dukedoms:daleria@127.0.0.1:5001/game_service'
 
     URLS.container.game_service = 'game-service:5000'
     URLS.container.account_service = 'account-service:5000'
