@@ -132,6 +132,7 @@ def assert_accounts_valid(context):
 def assert_accounts_valid(context):
     assert_that(len(context.verification_request_response.unverified_players), greater_than(0))
 
+# COMPONENT TEST
 @when('account service receives request to invite player to game')
 def step_invite_players(context):
     """
@@ -147,6 +148,7 @@ def step_invite_players(context):
     ).result()
     assert_that(status.status_code, equal_to(202))
 
+# COMPONENT TEST
 @then('account service shows game ids when account "{acct_email}" is queried for game invites')
 def assert_player_invite_successful(context, acct_email):
     account_emails = list(acct_email)
@@ -167,6 +169,34 @@ def assert_player_invite_successful(context, acct_email):
     expected_game_id = context.table.rows[0]['game id']
 
     assert_that(result.player_accounts[0]['game_invitations']['game_invitation_ids'][0], equal_to(int(expected_game_id)))
+
+# TODO - list of account ids
+@then('player "{player_email}" receives an invite to the game')
+def assert_player_invites_includes_game(context, player_email):
+    """
+    check that player's invites includes the most recent game_id created
+    """
+    result, status = context.clients.account_service.accountInfo.get_game_invites(
+        accountId=context.new_account_id
+    ).result()
+    assert_that(status.status_code, equal_to(200))
+
+    assert_that(result.gameIds, has_item(context.game_id))
+
+
+@when('player "{player_email}" "{invite_response}" the game invitation')
+def step_accept_game_invite(context, player_email, invite_response):
+    accept = True if invite_response == 'accepts' else False
+    invite_response = context.clients.account_service.get_model('InvitationResponse')(
+        accountId=content.new_account_id,
+        gameId=game_id,
+        accept=accept
+    )
+    result, status = context.clients.account_service.gameOperations.process_game_invite(
+        invitationResponse=context.
+    ).result()
+    assert_that(status.status_code, equal_to(202))
+
 
 @then('account service returns validation failure object with')
 def assert_player_validation_failures(context):
