@@ -177,7 +177,7 @@ def assert_player_invites_includes_game(context, player_email):
     check that player's invites includes the most recent game_id created
     """
     result, status = context.clients.account_service.accountInfo.get_game_invites(
-        accountId=context.new_account_id
+        accountId=context.new_account_id[0]
     ).result()
     assert_that(status.status_code, equal_to(200))
 
@@ -188,12 +188,12 @@ def assert_player_invites_includes_game(context, player_email):
 def step_accept_game_invite(context, player_email, invite_response):
     accept = True if invite_response == 'accepts' else False
     invite_response = context.clients.account_service.get_model('InvitationResponse')(
-        accountId=content.new_account_id,
-        gameId=game_id,
+        accountId=context.new_account_id[0],
+        gameId=context.game_id,
         accept=accept
     )
     result, status = context.clients.account_service.gameOperations.process_game_invite(
-        invitationResponse=context.
+        invitationResponse=invite_response
     ).result()
     assert_that(status.status_code, equal_to(202))
 
@@ -222,3 +222,12 @@ def compare_game_invitations(expected_games=None, received_games=None):
     for game in expected_games:
         assert_that(received_games, has_item(game))
     return True
+
+@then('the account service shows that player "{player_email}" has accepted the invite')
+def assert_account_service_shows_invite(context, player_email):
+    results, status = context.clients.account_service.accountInfo.get_player_info(
+        accountIds=context.new_account_id
+    ).result()
+    # TODO make account info schema not dumb
+    assert_that(len(results.player_accounts[0]['pending_player_ids']['pending_player_ids']), equal_to(1))
+    assert_that(len(results.player_accounts[0]['game_invitations']['game_invitation_ids']), equal_to(0))

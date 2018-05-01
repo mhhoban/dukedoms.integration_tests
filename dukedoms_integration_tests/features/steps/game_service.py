@@ -66,3 +66,18 @@ def assert_game_info(context):
 
     for player in context.table.rows[0]['invited_players'].split(','):
         assert_that(player, is_in(results.players['invited_players']['invitedPlayers']))
+
+@then('the game service shows that player "{player_email}" has accepted the invite')
+def assert_game_service_shows_invite(context, player_email):
+    results, status = context.clients.game_service.getGame.get_game_info(
+        gameId=context.game_id
+    ).result()
+
+    assert_that(
+        results.players['accepted_players']['acceptedPlayers'][0],
+        equal_to(player_email)
+    )
+    assert_that(
+        len(results.players['pending_players']['pendingPlayers']),
+        equal_to(0)
+    )

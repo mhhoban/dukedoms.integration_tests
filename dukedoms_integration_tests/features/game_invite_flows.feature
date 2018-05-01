@@ -8,6 +8,7 @@ Background: Test DB with only one account
     | email          |
     | test@test.test |
 
+@foo
 Scenario: Create Game, Send Invite, Accept Invite
   When account service receives request for new account with details:
     | email              |
@@ -17,7 +18,7 @@ Scenario: Create Game, Send Invite, Accept Invite
     | blarg       | test_one@test.test |
   Then the game service successfully creates a new game
   And player "test_one@test.test" receives an invite to the game
-  When player "test_one@test.test" accepts the game invitation
+  When player "test_one@test.test" "accepts" the game invitation
   Then the game service shows that player "test_one@test.test" has accepted the invite
   And the account service shows that player "test_one@test.test" has accepted the invite
 
