@@ -223,11 +223,20 @@ def compare_game_invitations(expected_games=None, received_games=None):
         assert_that(received_games, has_item(game))
     return True
 
-@then('the account service shows that player "{player_email}" has accepted the invite')
-def assert_account_service_shows_invite(context, player_email):
+@then('the account service shows that player "{player_email}" has "{invite_response}" the invite')
+def assert_account_service_shows_invite_response(context, player_email, invite_response):
     results, status = context.clients.account_service.accountInfo.get_player_info(
         accountIds=context.new_account_id
     ).result()
+
+    import pdb
+    pdb.set_trace()
+
     # TODO make account info schema not dumb
-    assert_that(len(results.player_accounts[0]['pending_player_ids']['pending_player_ids']), equal_to(1))
-    assert_that(len(results.player_accounts[0]['game_invitations']['game_invitation_ids']), equal_to(0))
+    if invite_response == 'accepted':
+        assert_that(len(results.player_accounts[0]['pending_player_ids']['pending_player_ids']), equal_to(1))
+        assert_that(len(results.player_accounts[0]['game_invitations']['game_invitation_ids']), equal_to(0))
+
+    else:
+        assert_that(len(results.player_accounts[0]['pending_player_ids']['pending_player_ids']), equal_to(0))
+        assert_that(len(results.player_accounts[0]['game_invitations']['game_invitation_ids']), equal_to(0))
