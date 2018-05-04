@@ -11,7 +11,9 @@ Feature: Account Service
     When account service receives request for new account with details:
       | email              |
       | test_one@test.test |
-    And account service is queried with the new account id
+    And account service is queried with the account id for:
+      | email              |
+      | test_one@test.test |
     Then account service returns accounts with info
       | email              |
       | test_one@test.test |
@@ -73,6 +75,7 @@ Feature: Account Service
       | test_fail_one@test.test |
       | test_fail_two@test.test |
 
+  @fooz
   Scenario: Add Game Invite Notification
     When account service receives request to invite player to game:
       | player email   | game id |

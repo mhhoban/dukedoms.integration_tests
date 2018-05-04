@@ -23,8 +23,9 @@ def step_new_account(context):
     attempt to create a new account
     """
     for row in context.table:
+        account_email = row['email']
         account_request = context.clients.account_service.get_model('NewAccountRequest')(
-            email=row['email']
+            email=account_email
         )
 
         result, status = context.clients.account_service.newAccount.create_new_account(
@@ -34,16 +35,18 @@ def step_new_account(context):
         assert_that(status.status_code, equal_to(200))
         assert_that(result.account_id, is_not(None))
 
-        context.new_account_id = [result.account_id]
+        # TODO less sloppy
+        context.account_ids = {}
+        context.account_ids[account_email] = result.account_id
 
-@when('account service is queried with the new account id')
+@when('account service is queried with the account id for')
 def step_query_new_account_id(context):
     """
     get account info for new account id
     """
-
+    account_email = context.table.rows[0]['email']
     result, status = context.clients.account_service.accountInfo.get_player_info(
-        accountIds=context.new_account_id
+        accountIds=[context.account_ids[account_email]]
     ).result()
 
     assert_that(status.status_code, equal_to(200))
@@ -55,7 +58,7 @@ def step_query_service_with_ids(context):
     get account info from account id
     """
 
-    account_ids = [list(dict.values())[0] for dict in context.account_id_mappings]
+    account_ids = [list(dict.values())[0] for dict in context.account_ids_mappings]
 
     result, status = context.clients.account_service.accountInfo.get_player_info(
         accountIds=account_ids
@@ -84,7 +87,7 @@ def step_get_id_for_email(context):
     ).result()
     assert_that(status.status_code, equal_to(200))
 
-    context.account_id_mappings = result.accountIdMappings
+    context.account_ids_mappings = result.accountIdMappings
 
 @then('account service returns the account ids for those email addresses')
 @then('the account service returns an id')
@@ -92,7 +95,7 @@ def assert_account_id(context):
     """
     Gherkin placeholder for a step in the story
     """
-    assert_that(context.account_id_mappings, is_not(None))
+    assert_that(context.account_ids_mappings, is_not(None))
 
 @when('account service receives another request for account id for email address')
 def step_get_account_id_again(context):
@@ -108,7 +111,7 @@ def step_get_account_id_again(context):
 @then('the account service returns the same id')
 def assert_account_ids_identical(context):
 
-    assert_that(context.account_id_mappings, equal_to(context.second_account_id))
+    assert_that(context.account_ids_mappings, equal_to(context.second_account_id))
 
 @when('account service receives request for account validation for')
 def step_request_account_validation(context):
@@ -154,7 +157,7 @@ def assert_player_invite_successful(context, acct_email):
     account_emails = list(acct_email)
 
     result, status = context.clients.account_service.accountInfo.get_player_info(
-        accountIds=list(context.account_id_mappings[0].values())
+        accountIds=list(context.account_ids_mappings[0].values())
     ).result()
     assert_that(status.status_code, equal_to(200))
 
@@ -223,14 +226,12 @@ def compare_game_invitations(expected_games=None, received_games=None):
         assert_that(received_games, has_item(game))
     return True
 
+@then('game service shows that player "{player_email}" has joined the game')
 @then('the account service shows that player "{player_email}" has "{invite_response}" the invite')
-def assert_account_service_shows_invite_response(context, player_email, invite_response):
+def assert_account_service_shows_invite_response(context, player_email, invite_response='accepted'):
     results, status = context.clients.account_service.accountInfo.get_player_info(
         accountIds=context.new_account_id
     ).result()
-
-    import pdb
-    pdb.set_trace()
 
     # TODO make account info schema not dumb
     if invite_response == 'accepted':

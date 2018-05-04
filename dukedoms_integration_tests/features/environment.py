@@ -6,8 +6,6 @@ from bravado.swagger_model import load_file
 
 def get_environment_variables(env):
 
-
-
     URLS = Dict()
     URLS.local.game_service = 'http://localhost:5003'
     URLS.local.dukedoms_rdbs = 'http://localhost:5432'

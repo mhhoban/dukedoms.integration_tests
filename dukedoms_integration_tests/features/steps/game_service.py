@@ -40,7 +40,7 @@ def step_create_game(context):
             host_player=row['host_player'],
             invited_players=row['invited_players'].split(',')
         )
-        results, status = context.clients.game_service.newGame.create_new_game(
+        results, status = context.clients.game_service.gameOperations.create_new_game(
             newGameRequest=new_game_request
         ).result()
 
@@ -69,7 +69,7 @@ def assert_game_info(context):
 
 @then('the game service shows that player "{player_email}" has "{invite_response}" the invite')
 def assert_game_service_shows_invite(context, player_email, invite_response):
-    results, status = context.clients.game_service.getGame.get_game_info(
+    results, status = context.clients.game_service.gameInfo.get_game_info(
         gameId=context.game_id
     ).result()
     assert_that(
@@ -79,8 +79,8 @@ def assert_game_service_shows_invite(context, player_email, invite_response):
 
     if invite_response == 'accepted':
         assert_that(
-            results.players['accepted_players']['acceptedPlayers'][0],
-            equal_to(player_email)
+            [k for k in results.players['accepted_players']['acceptedPlayers'][0].keys()],
+            equal_to([player_email])
         )
     else:
         assert_that(
