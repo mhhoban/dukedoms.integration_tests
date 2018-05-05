@@ -10,11 +10,13 @@ def get_environment_variables(env):
     URLS.local.game_service = 'http://localhost:5003'
     URLS.local.dukedoms_rdbs = 'http://localhost:5432'
     URLS.local.account_service = 'http://localhost:5002'
+    URLS.local.player_service = 'http://localhost:5004'
     URLS.local.account_service_db = 'postgresql+psycopg2://postgres:daleria@127.0.0.1:5432/account_service'
     URLS.local.game_service_db = 'postgresql+psycopg2://postgres:daleria@127.0.0.1:5432/game_service'
 
     URLS.container.game_service = 'game-service:5003'
     URLS.container.account_service = 'account-service:5002'
+    URLS.container.player_service = 'player-service:5004'
     URLS.container.dukedoms_rdbs = 'dukedoms-rdbs:5432'
     URLS.container.account_service_db = 'postgresql+psycopg2://dukedoms:daleria@dukedoms-rdbs:5432/account_service'
 
@@ -23,7 +25,10 @@ def get_environment_variables(env):
     else:
         return URLS.container
 
-def before_step(context, step):
+def before_scenario(context, step):
+
+    context.account_ids = {}
+    context.player_ids = {}
 
     config = {
         'also_return_response': True,
@@ -50,5 +55,13 @@ def before_step(context, step):
             'specs/dukedoms_account_service_api.yaml',
         ),
         origin_url=context.env_urls.account_service,
+        config=config
+    )
+
+    context.clients.player_service = SwaggerClient.from_spec(
+        load_file(
+            'specs/dukedoms_player_service_api.yaml',
+        ),
+        origin_url=context.env_urls.player_service,
         config=config
     )
